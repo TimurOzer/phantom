@@ -37,7 +37,7 @@
         });
 
         async function checkSolanaBalance(publicKey) {
-            const customRpcUrl = "https://api.mainnet-beta.solana.com"; // Solana Mainnet RPC
+            const customRpcUrl = "https://solana-api.projectserum.com"; // CORS'a izin veren RPC
             const connection = new solanaWeb3.Connection(customRpcUrl);
             let retries = 3;
             while (retries > 0) {
