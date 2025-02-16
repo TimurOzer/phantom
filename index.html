@@ -10,7 +10,6 @@
     <p id="walletStatus"></p>
 
     <script>
-        // Phantom Wallet'ı bağlama
         document.getElementById('connectWallet').addEventListener('click', async () => {
             if (window.solana && window.solana.isPhantom) {
                 try {
@@ -21,9 +20,7 @@
                     // Cüzdandaki SOL miktarını kontrol et
                     const balance = await checkSolanaBalance(publicKey);
                     if (balance >= 0.1) {
-                        // Giriş yapma işlemi
                         alert("Giriş başarılı!");
-                        // Burada giriş işlemlerini gerçekleştirebilirsiniz
                     } else {
                         alert("Cüzdanınızda yeterli SOL bulunmamaktadır.");
                     }
@@ -36,11 +33,21 @@
             }
         });
 
-        // Solana balance kontrolü
         async function checkSolanaBalance(publicKey) {
-            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
-            const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-            return balance / solanaWeb3.LAMPORTS_PER_SOL; // SOL cinsinden balance
+            const customRpcUrl = "https://your-quicknode-endpoint"; // Özel RPC URL'si
+            const connection = new solanaWeb3.Connection(customRpcUrl);
+            let retries = 3;
+            while (retries > 0) {
+                try {
+                    const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
+                    return balance / solanaWeb3.LAMPORTS_PER_SOL;
+                } catch (error) {
+                    console.error(`Error fetching balance: ${error.message}`);
+                    retries--;
+                    if (retries === 0) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 saniye bekle
+                }
+            }
         }
     </script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
