@@ -37,7 +37,7 @@
         });
 
         async function checkSolanaBalance(publicKey) {
-            const customRpcUrl = "https://boldest-spring-shard.solana-mainnet.quiknode.pro/1234567890abcdef1234567890abcdef12345678/"; // Gerçek RPC URL'si
+            const customRpcUrl = "https://api.mainnet-beta.solana.com"; // Solana Mainnet RPC
             const connection = new solanaWeb3.Connection(customRpcUrl);
             let retries = 3;
             while (retries > 0) {
