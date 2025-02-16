@@ -8,7 +8,7 @@
 <body>
     <button id="connectWallet">Connect Phantom Wallet</button>
     <p id="walletStatus"></p>
-    <p id="solBalance"></p> <!-- SOL miktarını göstermek için yeni bir paragraf -->
+    <p id="solBalance"></p>
 
     <script>
         document.getElementById('connectWallet').addEventListener('click', async () => {
@@ -20,7 +20,7 @@
 
                     // Cüzdandaki SOL miktarını kontrol et
                     const balance = await checkSolanaBalance(publicKey);
-                    document.getElementById('solBalance').innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`; // SOL miktarını göster (0 dahil)
+                    document.getElementById('solBalance').innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`;
 
                     if (balance >= 0.1) {
                         alert("Giriş başarılı!");
@@ -37,17 +37,20 @@
         });
 
         async function checkSolanaBalance(publicKey) {
-            const customRpcUrl = "https://your-quicknode-endpoint"; // Özel RPC URL'si
+            const customRpcUrl = "https://boldest-spring-shard.solana-mainnet.quiknode.pro/1234567890abcdef1234567890abcdef12345678/"; // Gerçek RPC URL'si
             const connection = new solanaWeb3.Connection(customRpcUrl);
             let retries = 3;
             while (retries > 0) {
                 try {
                     const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-                    return balance / solanaWeb3.LAMPORTS_PER_SOL; // SOL cinsinden balance (0 dahil)
+                    return balance / solanaWeb3.LAMPORTS_PER_SOL;
                 } catch (error) {
                     console.error(`Error fetching balance: ${error.message}`);
                     retries--;
-                    if (retries === 0) throw error;
+                    if (retries === 0) {
+                        alert("RPC sunucusuna bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
+                        throw error;
+                    }
                     await new Promise(resolve => setTimeout(resolve, 1000)); // 1 saniye bekle
                 }
             }
