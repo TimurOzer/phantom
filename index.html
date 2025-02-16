@@ -20,7 +20,7 @@
 
                     // Cüzdandaki SOL miktarını kontrol et
                     const balance = await checkSolanaBalance(publicKey);
-                    document.getElementById('solBalance').innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`; // SOL miktarını göster
+                    document.getElementById('solBalance').innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`; // SOL miktarını göster (0 dahil)
 
                     if (balance >= 0.1) {
                         alert("Giriş başarılı!");
@@ -43,7 +43,7 @@
             while (retries > 0) {
                 try {
                     const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-                    return balance / solanaWeb3.LAMPORTS_PER_SOL;
+                    return balance / solanaWeb3.LAMPORTS_PER_SOL; // SOL cinsinden balance (0 dahil)
                 } catch (error) {
                     console.error(`Error fetching balance: ${error.message}`);
                     retries--;
