@@ -1,61 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phantom Wallet Integration</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phantom Wallet Entegrasyonu</title>
+  <!-- Solana Web3 kütüphanesi; Bu kütüphaneyi head içinde yüklüyoruz ki script’imiz kullanabilelim -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; }
+    p { margin-top: 1rem; }
+  </style>
 </head>
 <body>
-    <button id="connectWallet">Connect Phantom Wallet</button>
-    <p id="walletStatus"></p>
-    <p id="solBalance"></p>
+  <button id="connectWallet">Phantom Wallet Bağlan</button>
+  <p id="walletStatus"></p>
+  <p id="solBalance"></p>
 
-    <script>
-        document.getElementById('connectWallet').addEventListener('click', async () => {
-            if (window.solana && window.solana.isPhantom) {
-                try {
-                    const resp = await window.solana.connect();
-                    const publicKey = resp.publicKey.toString();
-                    document.getElementById('walletStatus').innerText = `Connected: ${publicKey}`;
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const connectWalletButton = document.getElementById('connectWallet');
+      const walletStatusEl = document.getElementById('walletStatus');
+      const solBalanceEl = document.getElementById('solBalance');
 
-                    // Cüzdandaki SOL miktarını kontrol et
-                    const balance = await checkSolanaBalance(publicKey);
-                    document.getElementById('solBalance').innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`;
+      connectWalletButton.addEventListener('click', async () => {
+        // Phantom Wallet’un yüklü olup olmadığını kontrol et
+        if (window.solana && window.solana.isPhantom) {
+          try {
+            // Cüzdanı bağlat
+            const response = await window.solana.connect();
+            const publicKey = response.publicKey.toString();
+            walletStatusEl.innerText = `Bağlandı: ${publicKey}`;
 
-                    if (balance >= 0.1) {
-                        alert("Giriş başarılı!");
-                    } else {
-                        alert("Cüzdanınızda yeterli SOL bulunmamaktadır.");
-                    }
-                } catch (err) {
-                    console.error(err);
-                    document.getElementById('walletStatus').innerText = "Connection failed";
-                }
+            // SOL bakiyesini kontrol et
+            const balance = await getSolBalance(publicKey);
+            solBalanceEl.innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`;
+
+            // Belirli bir bakiyenin üzerinde olup olmadığını kontrol et (örneğin 0.1 SOL)
+            if (balance >= 0.1) {
+              alert("Giriş başarılı!");
             } else {
-                alert("Phantom Wallet bulunamadı. Lütfen Phantom Wallet yükleyin.");
+              alert("Cüzdanınızda yeterli SOL bulunmamaktadır.");
             }
-        });
-
-        async function checkSolanaBalance(publicKey) {
-            const customRpcUrl = "https://solana-api.projectserum.com"; // CORS'a izin veren RPC
-            const connection = new solanaWeb3.Connection(customRpcUrl);
-            let retries = 3;
-            while (retries > 0) {
-                try {
-                    const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-                    return balance / solanaWeb3.LAMPORTS_PER_SOL;
-                } catch (error) {
-                    console.error(`Error fetching balance: ${error.message}`);
-                    retries--;
-                    if (retries === 0) {
-                        alert("RPC sunucusuna bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
-                        throw error;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 saniye bekle
-                }
-            }
+          } catch (error) {
+            console.error("Bağlantı hatası:", error);
+            walletStatusEl.innerText = "Bağlantı başarısız.";
+          }
+        } else {
+          alert("Phantom Wallet bulunamadı. Lütfen Phantom Wallet yükleyin.");
         }
-    </script>
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+      });
+    });
+
+    // SOL bakiyesini RPC üzerinden kontrol eden fonksiyon (yeniden deneme mekanizması içerir)
+    async function getSolBalance(publicKey) {
+      const rpcUrl = "https://api.mainnet-beta.solana.com"; // Solana Mainnet RPC URL
+      const connection = new solanaWeb3.Connection(rpcUrl);
+      let retries = 3;
+
+      while (retries > 0) {
+        try {
+          const lamports = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
+          return lamports / solanaWeb3.LAMPORTS_PER_SOL;
+        } catch (error) {
+          console.error(`Bakiye sorgulama hatası: ${error.message}`);
+          retries--;
+          if (retries === 0) {
+            alert("RPC sunucusuna bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
+            throw error;
+          }
+          // Kısa bir süre bekleyip yeniden dene
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+  </script>
 </body>
 </html>
