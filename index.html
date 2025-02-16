@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Phantom Wallet Entegrasyonu</title>
-  <!-- Solana Web3 kütüphanesi; Bu kütüphaneyi head içinde yüklüyoruz ki script’imiz kullanabilelim -->
+  <!-- Solana Web3 kütüphanesini yüklüyoruz -->
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 2rem; }
@@ -24,10 +24,9 @@
       const solBalanceEl = document.getElementById('solBalance');
 
       connectWalletButton.addEventListener('click', async () => {
-        // Phantom Wallet’un yüklü olup olmadığını kontrol et
         if (window.solana && window.solana.isPhantom) {
           try {
-            // Cüzdanı bağlat
+            // Cüzdanı bağla
             const response = await window.solana.connect();
             const publicKey = response.publicKey.toString();
             walletStatusEl.innerText = `Bağlandı: ${publicKey}`;
@@ -36,7 +35,6 @@
             const balance = await getSolBalance(publicKey);
             solBalanceEl.innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`;
 
-            // Belirli bir bakiyenin üzerinde olup olmadığını kontrol et (örneğin 0.1 SOL)
             if (balance >= 0.1) {
               alert("Giriş başarılı!");
             } else {
@@ -52,9 +50,10 @@
       });
     });
 
-    // SOL bakiyesini RPC üzerinden kontrol eden fonksiyon (yeniden deneme mekanizması içerir)
+    // SOL bakiyesini kontrol eden fonksiyon (yeniden deneme mekanizması ile)
     async function getSolBalance(publicKey) {
-      const rpcUrl = "https://api.mainnet-beta.solana.com"; // Solana Mainnet RPC URL
+      // Alternatif RPC URL: Project Serum RPC
+      const rpcUrl = "https://solana-api.projectserum.com";
       const connection = new solanaWeb3.Connection(rpcUrl);
       let retries = 3;
 
@@ -69,7 +68,7 @@
             alert("RPC sunucusuna bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
             throw error;
           }
-          // Kısa bir süre bekleyip yeniden dene
+          // 1 saniye bekle ve yeniden dene
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
