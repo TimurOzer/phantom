@@ -8,6 +8,7 @@
 <body>
     <button id="connectWallet">Connect Phantom Wallet</button>
     <p id="walletStatus"></p>
+    <p id="solBalance"></p> <!-- SOL miktarını göstermek için yeni bir paragraf -->
 
     <script>
         document.getElementById('connectWallet').addEventListener('click', async () => {
@@ -19,6 +20,8 @@
 
                     // Cüzdandaki SOL miktarını kontrol et
                     const balance = await checkSolanaBalance(publicKey);
+                    document.getElementById('solBalance').innerText = `Cüzdanınızdaki SOL miktarı: ${balance} SOL`; // SOL miktarını göster
+
                     if (balance >= 0.1) {
                         alert("Giriş başarılı!");
                     } else {
