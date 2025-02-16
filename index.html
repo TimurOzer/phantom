@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Wallet Integration</title>
+</head>
+<body>
+    <button id="connectWallet">Connect Phantom Wallet</button>
+    <p id="walletStatus"></p>
+
+    <script>
+        // Phantom Wallet'ı bağlama
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    const resp = await window.solana.connect();
+                    const publicKey = resp.publicKey.toString();
+                    document.getElementById('walletStatus').innerText = `Connected: ${publicKey}`;
+
+                    // Cüzdandaki SOL miktarını kontrol et
+                    const balance = await checkSolanaBalance(publicKey);
+                    if (balance >= 0.1) {
+                        // Giriş yapma işlemi
+                        alert("Giriş başarılı!");
+                        // Burada giriş işlemlerini gerçekleştirebilirsiniz
+                    } else {
+                        alert("Cüzdanınızda yeterli SOL bulunmamaktadır.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('walletStatus').innerText = "Connection failed";
+                }
+            } else {
+                alert("Phantom Wallet bulunamadı. Lütfen Phantom Wallet yükleyin.");
+            }
+        });
+
+        // Solana balance kontrolü
+        async function checkSolanaBalance(publicKey) {
+            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+            const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
+            return balance / solanaWeb3.LAMPORTS_PER_SOL; // SOL cinsinden balance
+        }
+    </script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+</body>
+</html>
